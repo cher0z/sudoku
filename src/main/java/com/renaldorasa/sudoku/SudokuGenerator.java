@@ -143,14 +143,13 @@ public class SudokuGenerator
         int count = K;
         while (count != 0)
         {
-            int cellId = randomGenerator(N*N);
+            int cellId = randomGenerator(N*N - 1);
 
             int i = (cellId/N);
             int j = cellId%9;
             if (j != 0)
                 j = j - 1;
 
-            // System.out.println(i+" "+j);
             if (mat[i][j] != 0)
             {
                 count--;
@@ -169,7 +168,6 @@ public class SudokuGenerator
             for (int j = 0; j<N; j++)
                 board.append(mat[i][j]);
         }
-
         return board.toString();
     }
 
