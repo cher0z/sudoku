@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sudoku</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="sudoku.css">
+<!--    <script type="text/javascript" th:src="@{sudoku.js}"></script>-->
+</head>
+<body>
+<div class="col-4 offset-4">
+    <form id="sudokuBoard" method="post" enctype="application/x-www-form-urlencoded" class="form-group text-center">
+        <div class="container">
+            <table class="row-eq-height table-striped table-bordered text-center">
+                <!--/*@thymesVar id="board" type=""*/-->
+                <tr th:each="row, y: ${board}">
+                    <td th:each="value, x: ${row}">
+                        <div th:switch="${value}" class="col-xs-4">
+                            <input th:name=|cellValue${y.index}${x.index}| th:case="0" class="content form-control input"
+                                   style="text-align:center" type="text" pattern="[0-9]*"
+                                   maxlength="1" value="0" onkeypress="return isNumber(event)" oninput="moveMade(this)">
+                            <input th:name=|cellValue${y.index}${x.index}| th:case="*" class="content form-control input"
+                                   style="text-align:center;background-color:lightgreen" type="text"
+                                   th:value="${value}" readonly>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="gap-10"></div>
+            <button type="submit" class="btn btn-outline-primary btn-sm">Check Solution</button>
+            <button class="btn btn-outline-primary btn-sm" id="btnNewGame">New Game</button>
+            <button class="btn btn-outline-primary btn-sm" id="solveBoard"> Solve Puzzle</button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+    $("#sudokuBoard").submit(function (e) {
+
+        e.preventDefault();
+
+        var formData = $('#sudokuBoard').serializeArray();
+
+        $.ajax({
+            type: "POST",
+            url: "/sudoku/status",
+            data: formData,
+            dataType: 'text',
+            success: function (result) {
+                alert(result);
+            }
+        });
+    });
+
+
+    $("#solveBoard").click(function () {
+
+        var boardStatus = "true";
+
+        $.ajax({
+            type: "POST",
+            url: "/sudoku/update_status",
+            data: boardStatus,
+            contentType: 'application/json',
+            success: function (result) {
+                location.reload();
+            }
+        });
+    });
+
+
+    $("#btnNewGame").click(function () {
+
+        var boardStatus = "false";
+
+        $.ajax({
+            type: "POST",
+            url: "/sudoku/update_status",
+            data: boardStatus,
+            contentType: 'application/json',
+            success: function (result) {
+                location.reload();
+            }
+        });
+    });
+
+
+    $("#sudokuBoard").keypress(function (e) {
+        //Enter key
+        if (e.which == 13) {
+            return false;
+        }
+    });
+
+
+    function moveMade(cell) {
+
+        var cellPosition = cell.name;
+        var cellValue = $('[name=' + cell.name + ']').val();
+
+        console.log(cellValue);
+
+        var data = JSON.stringify({
+            'position': cellPosition,
+            'value': cellValue
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/sudoku/move", // the method we are calling
+            data: data,
+            contentType: 'application/json',
+            success: function (result) {
+                if (result) {
+                    $('[name=' + cell.name + ']').css({
+                        "background-color": "limegreen"
+                    })
+                } else {
+                    $('[name=' + cell.name + ']').css({
+                        "background-color": "#f44253"
+                    })
+                }
+
+                console.log(result);
+            }
+        });
+    }
+
+
+
+    function isNumber(event) {
+        var keycode = event.keyCode;
+
+        if (keycode > 48 && keycode < 58) {
+            return true;
+        }
+
+        return false;
+    }
+</script>
+
+</body>
+</html>
