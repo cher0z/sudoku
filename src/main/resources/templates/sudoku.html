@@ -24,19 +24,20 @@
                     <td th:each="value, x: ${row}">
                         <div th:switch="${value}" class="col-xs-4">
                             <input  th:name=|cellValue${y.index}${x.index}| th:case="0" class="content form-control input empty-cell input-group-lg"
-                                type="text" maxlength="1" value="0" style="text-align:center" onkeypress="return isNumber(event)" oninput="moveMade(this)">
+                                type="text" maxlength="1" value="0" autocomplete="off" style="text-align:center" onkeypress="return isNumber(event)" oninput="moveMade(this)">
                             <input th:name=|cellValue${y.index}${x.index}| th:case="*" class="content form-control input filled-cell input-group-lg"
-                                   style="text-align:center;background-color:lightgreen" type="text" th:value="${value}" readonly>
+                                   style="text-align:center;background-color:lightgreen" autocomplete="off" type="text" th:value="${value}" readonly>
                         </div>
                     </td>
                 </tr>
             </table>
         </div>
             <br>
-            <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                <button type="submit" class="btn btn-primary btn-sm check-button">Check Solution</button>
-                <button class="btn btn-success btn-sm newgame-button" id="btnNewGame">New Game</button>
-                <button class="btn btn-sm btn-outline-primary" id="solveBoard"> Solve Puzzle</button>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="submit" class="btn btn-primary btn-sm check-button">Check Solution </button>
+                <button class="btn btn-sm btn-success" id="btnNewGame">New Game </button>
+                <button class="btn btn-sm btn-warning" id="solveBoard"> Solve Puzzle </button>
+                <button class="btn btn-sm btn-danger" id="resetBoard"> Reset Moves </button>
             </div>
     </form>
 
@@ -56,6 +57,19 @@
 </div>
 
 <script>
+
+    $(document).ready(function() {
+        $('#resetBoard').click(function () {
+            $(':input', '#sudokuBoard').each(function() {
+                if(!$(this).is('[readonly]')){
+                    $('[name=' + this.name + ']').val('0');
+                    $('[name=' + this.name + ']').css({
+                        "background-color": ""
+                    });
+                }
+            });
+        });
+    });
 
     $(document).ready(function () {
         $('#alertWarning').hide();
@@ -89,6 +103,18 @@
 
     $("#solveBoard").click(function () {
 
+        // $(document).ready(function () {
+        //     $(':input', '#sudokuBoard').each(function () {
+        //         if (!$(this).is('[readonly]')) {
+        //             $('[name=' + this.name + ']').val('0');
+        //             $('[name=' + this.name + ']').css({
+        //                 "background-color": ""
+        //             });
+        //         }
+        //     });
+        // })
+
+
         var boardStatus = "true";
 
         $.ajax({
@@ -115,6 +141,8 @@
                 location.reload();
             }
         });
+
+        $("#sudokuBoard").remove();
     });
 
 
