@@ -158,18 +158,6 @@ public class DancingLinks {
         return result;
     }
 
-//    public void printSolution(int[][] result) {
-//        int size = result.length;
-//        for (int[] aResult : result) {
-//            StringBuilder ret = new StringBuilder();
-//            for (int j = 0; j < size; j++) {
-//                ret.append(aResult[j]).append(" ");
-//            }
-//            System.out.println(ret);
-//        }
-//        System.out.println();
-//    }
-
     public void printSolution(int[][] result) {
         int size = result.length;
         StringBuilder ret = new StringBuilder();

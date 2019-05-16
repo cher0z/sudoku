@@ -17,4 +17,15 @@ public class BoardManipulator {
         }
         return boardArray;
     }
+
+    public String formDataToString (String formData){
+        String[] boardData = formData.split("&");
+        StringBuilder boardValues = new StringBuilder();
+
+        for(String s : boardData){
+            boardValues.append((s.charAt(12)));
+        }
+
+        return boardValues.toString();
+    }
 }

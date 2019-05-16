@@ -30,39 +30,30 @@ public class Controller {
             int[][] solvedBoard = boardManipulator.stringTo2DArray(solver.printableSolve(sudokuGenerator.getMat()));
             model.addAttribute("board", solvedBoard);
         }else{
-            sudokuGenerator.generateBoard(9, 20);
+            sudokuGenerator.generateBoard(9, 40);
             sudokuGenerator.fillValues();
             model.addAttribute("board", sudokuGenerator.getMat());
         }
     }
 
     @RequestMapping(value = "/sudoku/status", method = RequestMethod.POST)
-    public @ResponseBody String checkBoardStatus(@RequestBody String formData) throws IOException {
+    public @ResponseBody
+    boolean checkBoardStatus(@RequestBody String formData) throws IOException {
 
-        String[] boardData = formData.split("&");
-        StringBuilder boardValues = new StringBuilder();
+        if (solver.printableSolve(sudokuGenerator.getMat()).equals
+                (boardManipulator.formDataToString(formData)))
+            return true;
 
-        for(String s : boardData){
-            boardValues.append(String.valueOf(s.charAt(12)));
-        }
-
-        if(solver.printableSolve(sudokuGenerator.getMat()).equals(boardValues.toString()))
-            return "Solution is Valid!";
-
-        return "Invalid Solution!";
+        return false;
     }
 
     @RequestMapping(value = "/sudoku/update_status", method = RequestMethod.POST)
     public @ResponseBody void setBoardStatus(@RequestBody boolean statusUpdate) {
-        System.out.println(statusUpdate);
         isBoardSolved = statusUpdate;
-        System.out.println(isBoardSolved);
     }
 
     @RequestMapping(value = "/sudoku/move", method = RequestMethod.POST)
     public @ResponseBody boolean checkMove(@RequestBody String data) throws IOException {
-
-        System.out.println(data);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode actualObj = mapper.readTree(data);
@@ -77,13 +68,8 @@ public class Controller {
         int row = Integer.parseInt(String.valueOf(cellPosition.charAt(0)));
         int column = Integer.parseInt(String.valueOf(cellPosition.charAt(1)));
 
-        System.out.println(cellPosition + " "+ row + " " + column + " " + cellValue);
-
         if(solver.isSafe(sudokuGenerator.getMat(), row, column, cellValue))
             return true;
-
-        System.out.println();
-        System.out.println(sudokuGenerator.printSudoku());
 
         return false;
     }

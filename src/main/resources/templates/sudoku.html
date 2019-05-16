@@ -6,37 +6,61 @@
     <title>Sudoku</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+
     <link rel="stylesheet" href="sudoku.css">
 <!--    <script type="text/javascript" th:src="@{sudoku.js}"></script>-->
 </head>
 <body>
 <div class="col-4 offset-4">
+    <br>
     <form id="sudokuBoard" method="post" enctype="application/x-www-form-urlencoded" class="form-group text-center">
-        <div class="container">
-            <table class="row-eq-height table-striped table-bordered text-center">
+        <div class="container table-responsive">
+            <table class="row-eq-height table-striped table-bordered text-center ">
                 <!--/*@thymesVar id="board" type=""*/-->
                 <tr th:each="row, y: ${board}">
                     <td th:each="value, x: ${row}">
                         <div th:switch="${value}" class="col-xs-4">
-                            <input th:name=|cellValue${y.index}${x.index}| th:case="0" class="content form-control input"
-                                   style="text-align:center" type="text" pattern="[0-9]*"
-                                   maxlength="1" value="0" onkeypress="return isNumber(event)" oninput="moveMade(this)">
-                            <input th:name=|cellValue${y.index}${x.index}| th:case="*" class="content form-control input"
-                                   style="text-align:center;background-color:lightgreen" type="text"
-                                   th:value="${value}" readonly>
+                            <input  th:name=|cellValue${y.index}${x.index}| th:case="0" class="content form-control input empty-cell input-group-lg"
+                                type="text" maxlength="1" value="0" style="text-align:center" onkeypress="return isNumber(event)" oninput="moveMade(this)">
+                            <input th:name=|cellValue${y.index}${x.index}| th:case="*" class="content form-control input filled-cell input-group-lg"
+                                   style="text-align:center;background-color:lightgreen" type="text" th:value="${value}" readonly>
                         </div>
                     </td>
                 </tr>
             </table>
-            <div class="gap-10"></div>
-            <button type="submit" class="btn btn-outline-primary btn-sm">Check Solution</button>
-            <button class="btn btn-outline-primary btn-sm" id="btnNewGame">New Game</button>
-            <button class="btn btn-outline-primary btn-sm" id="solveBoard"> Solve Puzzle</button>
         </div>
+            <br>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                <button type="submit" class="btn btn-primary btn-sm check-button">Check Solution</button>
+                <button class="btn btn-success btn-sm newgame-button" id="btnNewGame">New Game</button>
+                <button class="btn btn-sm btn-outline-primary" id="solveBoard"> Solve Puzzle</button>
+            </div>
     </form>
+
+    <br>
+
+    <div class="alert alert-warning fade show" id="alertWarning"
+         onclick="$('.alert').hide()">
+        <strong>Invalid Solution</strong> The puzzle is not solved!
+    </div>
+
+
+    <div class="alert alert-success alert-dismissible fade show" id="alertSuccess"
+         onclick="$('.alert').hide()">
+       <strong>Valid Solution</strong> The puzzle is solved!
+    </div>
+
 </div>
 
 <script>
+
+    $(document).ready(function () {
+        $('#alertWarning').hide();
+        $('#alertSuccess').hide();
+    })
 
     $("#sudokuBoard").submit(function (e) {
 
@@ -48,9 +72,16 @@
             type: "POST",
             url: "/sudoku/status",
             data: formData,
-            dataType: 'text',
+            contentType: 'application/json',
             success: function (result) {
-                alert(result);
+                if (result) {
+                    console.log(result);
+                    $('#alertSuccess').show();
+                }
+                else {
+                    console.log(result);
+                    $('#alertWarning').show();
+                }
             }
         });
     });
@@ -73,7 +104,6 @@
 
 
     $("#btnNewGame").click(function () {
-
         var boardStatus = "false";
 
         $.ajax({
@@ -128,7 +158,6 @@
             }
         });
     }
-
 
 
     function isNumber(event) {
