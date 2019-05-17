@@ -12,16 +12,19 @@ import java.io.IOException;
 @org.springframework.stereotype.Controller
 public class Controller {
 
-    @Autowired
-    DancingLinksAlgorithm solver;
+    final DancingLinksAlgorithm solver;
 
-    @Autowired
-    SudokuGenerator sudokuGenerator;
+    final SudokuGenerator sudokuGenerator;
 
-    @Autowired
-    BoardManipulator boardManipulator;
+    final BoardManipulator boardManipulator;
 
     private boolean isBoardSolved;
+
+    public Controller(SudokuGenerator sudokuGenerator, DancingLinksAlgorithm solver, BoardManipulator boardManipulator) {
+        this.sudokuGenerator = sudokuGenerator;
+        this.solver = solver;
+        this.boardManipulator = boardManipulator;
+    }
 
     @GetMapping("/sudoku")
     public void createSolvableBoard (Model model){
@@ -30,7 +33,7 @@ public class Controller {
             int[][] solvedBoard = boardManipulator.stringTo2DArray(solver.printableSolve(sudokuGenerator.getMat()));
             model.addAttribute("board", solvedBoard);
         }else{
-            sudokuGenerator.generateBoard(9, 36);
+            sudokuGenerator.generateBoard(9, 20);
             sudokuGenerator.fillValues();
             model.addAttribute("board", sudokuGenerator.getMat());
             System.out.println(solver.printableSolve(sudokuGenerator.getMat()));
