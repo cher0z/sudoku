@@ -30,9 +30,10 @@ public class Controller {
             int[][] solvedBoard = boardManipulator.stringTo2DArray(solver.printableSolve(sudokuGenerator.getMat()));
             model.addAttribute("board", solvedBoard);
         }else{
-            sudokuGenerator.generateBoard(9, 20);
+            sudokuGenerator.generateBoard(9, 36);
             sudokuGenerator.fillValues();
             model.addAttribute("board", sudokuGenerator.getMat());
+            System.out.println(solver.printableSolve(sudokuGenerator.getMat()));
         }
     }
 

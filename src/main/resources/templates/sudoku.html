@@ -2,16 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>Sudoku</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="sudoku.css">
+
 </head>
 <body>
-
     <div class="col-4 offset-4">
         <br>
         <form id="sudokuBoard" method="post" enctype="application/x-www-form-urlencoded" class="form-group text-center">
@@ -55,149 +55,144 @@
              onclick="$('.alert').hide()">
             <strong>Valid Solution</strong> The puzzle is solved!
         </div>
-
     </div>
 
-<script>
+    <script>
 
-    $(function () {
-        $('#alertWarning').hide();
-        $('#alertSuccess').hide();
-    });
-
-    $('#resetMoves').click(function (e){
-
-        e.preventDefault();
-
-        $(':input', '#sudokuBoard').each(function () {
-            var inputName = '[name=' + this.name + ']';
-            if (!$(this).is('[readonly]')) {
-                $(inputName).val('0');
-                $(inputName).css({
-                    "background-color": ""
-                });
-            }
+        $(function () {
+            $('#alertWarning').hide();
+            $('#alertSuccess').hide();
         });
-    });
 
-
-    $(document).ready(function () {
-
-        $("#sudokuBoard").submit(function (e) {
+        $('#resetMoves').click(function (e) {
 
             e.preventDefault();
 
-            var formData = $('#sudokuBoard').serializeArray();
-
-            $.ajax({
-                type: "POST",
-                url: "/sudoku/status",
-                data: formData,
-                contentType: 'application/json',
-                success: function (result) {
-                    if (result) {
-                        console.log(result);
-                        $('#alertSuccess').show();
-                    }
-                    else {
-                        console.log(result);
-                        $('#alertWarning').show();
-                    }
+            $(':input', '#sudokuBoard').each(function () {
+                var inputName = '[name=' + this.name + ']';
+                if (!$(this).is('[readonly]')) {
+                    $(inputName).val('0');
+                    $(inputName).css({
+                        "background-color": ""
+                    });
                 }
             });
         });
-    });
 
 
+        $(document).ready(function () {
 
-    $("#solveBoard").click(function (e) {
+            $("#sudokuBoard").submit(function (e) {
 
-        e.preventDefault();
+                e.preventDefault();
 
-        var boardStatus = "true";
+                var formData = $('#sudokuBoard').serializeArray();
 
-        $.ajax({
-            type: "POST",
-            url: "/sudoku/update_status",
-            data: boardStatus,
-            contentType: 'application/json',
-            success: function () {
-                location.reload();
-            }
-        });
-    });
-
-
-    $("#btnNewGame").click(function (e) {
-
-        var boardStatus = "false";
-
-        $.ajax({
-            type: "POST",
-            url: "/sudoku/update_status",
-            data: boardStatus,
-            contentType: 'application/json',
-            success: function () {
-                location.reload();
-            }
+                $.ajax({
+                    type: "POST",
+                    url: "/sudoku/status",
+                    data: formData,
+                    contentType: 'application/json',
+                    success: function (result) {
+                        if (result) {
+                            console.log(result);
+                            $('#alertSuccess').fadeIn("swing");
+                        } else {
+                            console.log(result);
+                            $('#alertWarning').fadeIn("swing");
+                        }
+                    }
+                });
+            });
         });
 
-        $("#sudokuBoard").remove();
-    });
+
+        $("#solveBoard").click(function (e) {
+
+            e.preventDefault();
+
+            var boardStatus = "true";
+
+            $.ajax({
+                type: "POST",
+                url: "/sudoku/update_status",
+                data: boardStatus,
+                contentType: 'application/json',
+                success: function () {
+                    location.reload();
+                }
+            });
+        });
 
 
+        $("#btnNewGame").click(function (e) {
+
+            var boardStatus = "false";
+
+            $.ajax({
+                type: "POST",
+                url: "/sudoku/update_status",
+                data: boardStatus,
+                contentType: 'application/json',
+                success: function () {
+                    location.reload();
+                }
+            });
+
+            $("#sudokuBoard").remove();
+        });
 
 
-    $("#sudokuBoard").keypress(function (e) {
-        //Enter key
-        if (e.which == 13) {
+        $("#sudokuBoard").keypress(function (e) {
+            //Enter key
+            if (e.which == 13) {
+                return false;
+            }
+        });
+
+        function moveMade(cell) {
+
+            var cellPosition = cell.name;
+            var cellValue = $('[name=' + cell.name + ']').val();
+
+            console.log(cellValue);
+
+            var data = JSON.stringify({
+                'position': cellPosition,
+                'value': cellValue
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "/sudoku/move", // the method we are calling
+                data: data,
+                contentType: 'application/json',
+                success: function (result) {
+                    if (result) {
+                        $('[name=' + cell.name + ']').css({
+                            "background-color": "limegreen"
+                        })
+                    } else {
+                        $('[name=' + cell.name + ']').css({
+                            "background-color": "#f44253"
+                        })
+                    }
+
+                    console.log(result);
+                }
+            });
+        }
+
+        function isNumber(event) {
+            var keycode = event.keyCode;
+
+            if (keycode > 48 && keycode < 58) {
+                return true;
+            }
+
             return false;
         }
-    });
-
-    function moveMade(cell) {
-
-        var cellPosition = cell.name;
-        var cellValue = $('[name=' + cell.name + ']').val();
-
-        console.log(cellValue);
-
-        var data = JSON.stringify({
-            'position': cellPosition,
-            'value': cellValue
-        });
-
-        $.ajax({
-            type: "POST",
-            url: "/sudoku/move", // the method we are calling
-            data: data,
-            contentType: 'application/json',
-            success: function (result) {
-                if (result) {
-                    $('[name=' + cell.name + ']').css({
-                        "background-color": "limegreen"
-                    })
-                } else {
-                    $('[name=' + cell.name + ']').css({
-                        "background-color": "#f44253"
-                    })
-                }
-
-                console.log(result);
-            }
-        });
-    }
-
-    function isNumber(event) {
-        var keycode = event.keyCode;
-
-        if (keycode > 48 && keycode < 58) {
-            return true;
-        }
-
-        return false;
-    }
-</script>
+    </script>
 
 </body>
 </html>
