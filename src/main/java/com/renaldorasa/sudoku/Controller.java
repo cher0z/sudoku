@@ -38,8 +38,7 @@ public class Controller {
 
     @RequestMapping(value = "/sudoku/status", method = RequestMethod.POST)
     public @ResponseBody
-    boolean checkBoardStatus(@RequestBody String formData) throws IOException {
-
+    boolean checkBoardStatus(@RequestBody String formData) {
         if (solver.printableSolve(sudokuGenerator.getMat()).equals
                 (boardManipulator.formDataToString(formData)))
             return true;

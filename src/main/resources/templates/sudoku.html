@@ -8,112 +8,111 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-
-
     <link rel="stylesheet" href="sudoku.css">
-<!--    <script type="text/javascript" th:src="@{sudoku.js}"></script>-->
 </head>
 <body>
-<div class="col-4 offset-4">
-    <br>
-    <form id="sudokuBoard" method="post" enctype="application/x-www-form-urlencoded" class="form-group text-center">
-        <div class="container table-responsive">
-            <table class="row-eq-height table-striped table-bordered text-center ">
-                <!--/*@thymesVar id="board" type=""*/-->
-                <tr th:each="row, y: ${board}">
-                    <td th:each="value, x: ${row}">
-                        <div th:switch="${value}" class="col-xs-4">
-                            <input  th:name=|cellValue${y.index}${x.index}| th:case="0" class="content form-control input empty-cell input-group-lg"
-                                type="text" maxlength="1" value="0" autocomplete="off" style="text-align:center" onkeypress="return isNumber(event)" oninput="moveMade(this)">
-                            <input th:name=|cellValue${y.index}${x.index}| th:case="*" class="content form-control input filled-cell input-group-lg"
-                                   style="text-align:center;background-color:lightgreen" autocomplete="off" type="text" th:value="${value}" readonly>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
+
+    <div class="col-4 offset-4">
+        <br>
+        <form id="sudokuBoard" method="post" enctype="application/x-www-form-urlencoded" class="form-group text-center">
+            <div class="container table-responsive">
+                <table class="row-eq-height table-striped table-bordered text-center ">
+                    <!--/*@thymesVar id="board" type=""*/-->
+                    <tr th:each="row, y: ${board}">
+                        <td th:each="value, x: ${row}">
+                            <div th:switch="${value}" class="col-xs-4">
+                                <input th:name=|cellValue${y.index}${x.index}| th:case="0"
+                                       class="content form-control input empty-cell input-group-lg"
+                                       type="text" maxlength="1" value="0" autocomplete="off" style="text-align:center"
+                                       onkeypress="return isNumber(event)" oninput="moveMade(this)">
+                                <input th:name=|cellValue${y.index}${x.index}| th:case="*"
+                                       class="content form-control input filled-cell input-group-lg"
+                                       style="text-align:center;background-color:lightgreen" autocomplete="off"
+                                       type="text" tabindex="-1" th:value="${value}" readonly>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
             <br>
             <div class="btn-group btn-group-sm" role="group">
-                <button type="submit" class="btn btn-primary btn-sm check-button">Check Solution </button>
+                <button type="submit" class="btn btn-primary btn-sm check-button">Check Solution</button>
                 <button class="btn btn-sm btn-success" id="btnNewGame">New Game </button>
                 <button class="btn btn-sm btn-warning" id="solveBoard"> Solve Puzzle </button>
-                <button class="btn btn-sm btn-danger" id="resetBoard"> Reset Moves </button>
+                <button class="btn btn-sm btn-danger" id="resetMoves"> Reset Moves </button>
             </div>
-    </form>
+        </form>
 
-    <br>
+        <br>
 
-    <div class="alert alert-warning fade show" id="alertWarning"
-         onclick="$('.alert').hide()">
-        <strong>Invalid Solution</strong> The puzzle is not solved!
+        <div class="alert alert-warning fade show" id="alertWarning"
+             onclick="$('.alert').hide()">
+            <strong>Invalid Solution</strong> The puzzle is not solved!
+        </div>
+
+
+        <div class="alert alert-success alert-dismissible fade show" id="alertSuccess"
+             onclick="$('.alert').hide()">
+            <strong>Valid Solution</strong> The puzzle is solved!
+        </div>
+
     </div>
-
-
-    <div class="alert alert-success alert-dismissible fade show" id="alertSuccess"
-         onclick="$('.alert').hide()">
-       <strong>Valid Solution</strong> The puzzle is solved!
-    </div>
-
-</div>
 
 <script>
 
-    $(document).ready(function() {
-        $('#resetBoard').click(function () {
-            $(':input', '#sudokuBoard').each(function() {
-                if(!$(this).is('[readonly]')){
-                    $('[name=' + this.name + ']').val('0');
-                    $('[name=' + this.name + ']').css({
-                        "background-color": ""
-                    });
-                }
-            });
-        });
-    });
-
-    $(document).ready(function () {
+    $(function () {
         $('#alertWarning').hide();
         $('#alertSuccess').hide();
-    })
+    });
 
-    $("#sudokuBoard").submit(function (e) {
+    $('#resetMoves').click(function (e){
 
         e.preventDefault();
 
-        var formData = $('#sudokuBoard').serializeArray();
-
-        $.ajax({
-            type: "POST",
-            url: "/sudoku/status",
-            data: formData,
-            contentType: 'application/json',
-            success: function (result) {
-                if (result) {
-                    console.log(result);
-                    $('#alertSuccess').show();
-                }
-                else {
-                    console.log(result);
-                    $('#alertWarning').show();
-                }
+        $(':input', '#sudokuBoard').each(function () {
+            var inputName = '[name=' + this.name + ']';
+            if (!$(this).is('[readonly]')) {
+                $(inputName).val('0');
+                $(inputName).css({
+                    "background-color": ""
+                });
             }
         });
     });
 
 
-    $("#solveBoard").click(function () {
+    $(document).ready(function () {
 
-        // $(document).ready(function () {
-        //     $(':input', '#sudokuBoard').each(function () {
-        //         if (!$(this).is('[readonly]')) {
-        //             $('[name=' + this.name + ']').val('0');
-        //             $('[name=' + this.name + ']').css({
-        //                 "background-color": ""
-        //             });
-        //         }
-        //     });
-        // })
+        $("#sudokuBoard").submit(function (e) {
 
+            e.preventDefault();
+
+            var formData = $('#sudokuBoard').serializeArray();
+
+            $.ajax({
+                type: "POST",
+                url: "/sudoku/status",
+                data: formData,
+                contentType: 'application/json',
+                success: function (result) {
+                    if (result) {
+                        console.log(result);
+                        $('#alertSuccess').show();
+                    }
+                    else {
+                        console.log(result);
+                        $('#alertWarning').show();
+                    }
+                }
+            });
+        });
+    });
+
+
+
+    $("#solveBoard").click(function (e) {
+
+        e.preventDefault();
 
         var boardStatus = "true";
 
@@ -122,14 +121,15 @@
             url: "/sudoku/update_status",
             data: boardStatus,
             contentType: 'application/json',
-            success: function (result) {
+            success: function () {
                 location.reload();
             }
         });
     });
 
 
-    $("#btnNewGame").click(function () {
+    $("#btnNewGame").click(function (e) {
+
         var boardStatus = "false";
 
         $.ajax({
@@ -137,7 +137,7 @@
             url: "/sudoku/update_status",
             data: boardStatus,
             contentType: 'application/json',
-            success: function (result) {
+            success: function () {
                 location.reload();
             }
         });
@@ -146,13 +146,14 @@
     });
 
 
+
+
     $("#sudokuBoard").keypress(function (e) {
         //Enter key
         if (e.which == 13) {
             return false;
         }
     });
-
 
     function moveMade(cell) {
 
@@ -186,7 +187,6 @@
             }
         });
     }
-
 
     function isNumber(event) {
         var keycode = event.keyCode;
